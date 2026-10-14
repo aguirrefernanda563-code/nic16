@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quiz NIC 16</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;700&family=IBM+Plex+Mono:wght@500&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: una columna de lectura, una pregunta a la vez, con el dictamen de auditoría como cierre. */
+:root {
+  --bg: #F2F5F7;
+  --surface: #FFFFFF;
+  --fg: #14212B;
+  --muted: #55656F;
+  --line: #D3DCE2;
+  --accent: #0B5C8A;
+  --accent-fg: #FFFFFF;
+  --good: #1D7048;
+  --good-bg: #E3F3EA;
+  --bad: #B03A2A;
+  --bad-bg: #FBE9E5;
+  --mark: #F2C230;
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body: "Instrument Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1A22;
+    --surface: #172530;
+    --fg: #E6EDF2;
+    --muted: #9DB0BC;
+    --line: #2B3E4B;
+    --accent: #6BB8E6;
+    --accent-fg: #0F1A22;
+    --good: #6FD39B;
+    --good-bg: #153326;
+    --bad: #F29A8B;
+    --bad-bg: #3A1D18;
+    --mark: #F2C230;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1A22;
+  --surface: #172530;
+  --fg: #E6EDF2;
+  --muted: #9DB0BC;
+  --line: #2B3E4B;
+  --accent: #6BB8E6;
+  --accent-fg: #0F1A22;
+  --good: #6FD39B;
+  --good-bg: #153326;
+  --bad: #F29A8B;
+  --bad-bg: #3A1D18;
+  --mark: #F2C230;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.5;
+  padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 680px; margin: 0 auto; min-width: 0; }
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+h1, h2 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+  line-height: 1.15;
+  margin: 0;
+}
+h1 { font-size: clamp(34px, 8vw, 52px); font-weight: 700; }
+h1 span { background: linear-gradient(transparent 62%, var(--mark) 62%); padding: 0 4px; }
+h2 { font-size: clamp(22px, 5vw, 30px); font-weight: 500; }
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 24px;
+  margin-top: 24px;
+}
+.lead { color: var(--muted); margin: 14px 0 0; max-width: 60ch; }
+label { display: block; font-weight: 600; margin: 22px 0 6px; font-size: 16px; }
+input[type="text"] {
+  width: 100%;
+  font: inherit;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--mark); outline-offset: 2px; }
+.btn {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--accent-fg);
+  border: 0;
+  border-radius: 8px;
+  padding: 13px 22px;
+  font-weight: 600;
+  margin-top: 22px;
+}
+.btn:hover { filter: brightness(1.08); }
+.rules { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 8px; font-size: 16px; color: var(--muted); }
+.rules li { display: flex; gap: 10px; }
+.rules b { font-family: var(--font-mono); color: var(--fg); font-weight: 500; min-width: 4.5em; }
+.progress { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 24px; }
+.progress span { height: 6px; border-radius: 3px; background: var(--line); }
+.progress span.done { background: var(--accent); }
+.progress span.current { background: var(--mark); }
+.asiento {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--muted);
+  margin: 14px 0 10px;
+  font-variant-numeric: tabular-nums;
+}
+#options { display: grid; gap: 10px; margin-top: 22px; }
+.opt {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 14px;
+  align-items: start;
+  text-align: left;
+  width: 100%;
+  min-width: 0;
+  background: var(--surface);
+  color: var(--fg);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt .chip {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  border: 1.5px solid var(--line);
+  background: var(--bg);
+}
+.opt .txt { padding-top: 6px; overflow-wrap: anywhere; }
+.opt:disabled { cursor: default; color: var(--fg); opacity: 0.6; }
+.opt.correct { opacity: 1; border-color: var(--good); background: var(--good-bg); }
+.opt.correct .chip { background: var(--good); color: var(--bg); border-color: var(--good); }
+.opt.wrong { opacity: 1; border-color: var(--bad); background: var(--bad-bg); }
+.opt.wrong .chip { background: var(--bad); color: var(--bg); border-color: var(--bad); }
+#feedback { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 18px; }
+#verdict { font-family: var(--font-display); font-weight: 700; font-size: 22px; margin: 0; }
+#verdict.good { color: var(--good); }
+#verdict.bad { color: var(--bad); }
+#why { margin: 8px 0 0; color: var(--muted); max-width: 60ch; }
+.dictamen-tag {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+#dictamen { font-size: clamp(28px, 7vw, 40px); font-weight: 700; margin-top: 6px; }
+.score {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 18px;
+  margin: 16px 0 0;
+}
+.score b { font-weight: 500; font-size: 30px; }
+#review { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 10px; }
+#review li { border-top: 1px solid var(--line); padding-top: 10px; font-size: 16px; min-width: 0; overflow-wrap: anywhere; }
+#review .tag { font-family: var(--font-mono); font-size: 13px; margin-right: 8px; }
+#review .ok { color: var(--good); }
+#review .no { color: var(--bad); }
+.foot { margin-top: 28px; font-size: 14px; color: var(--muted); font-family: var(--font-mono); }
+@media (prefers-reduced-motion: no-preference) {
+  .opt, .btn { transition: border-color 0.15s, background 0.15s, filter 0.15s; }
+}
+</style>
+
+<main class="wrap">
+  <header>
+    <p class="kicker">Auditores en Acción · Ronda 1</p>
+    <h1>Quiz <span>NIC 16</span></h1>
+  </header>
+
+  <section id="start" class="panel">
+    <h2>Calentamiento: ¿qué recuerdas del artículo?</h2>
+    <p class="lead">Son 5 preguntas sobre el tratamiento contable de las Propiedades, Planta y Equipo. Contesta sin volver al texto. Al final recibes el dictamen de tu auditoría.</p>
+    <ul class="rules">
+      <li><b>1 punto</b><span>por cada respuesta correcta, para tu equipo.</span></li>
+      <li><b>1 intento</b><span>por pregunta. Después de elegir verás la explicación.</span></li>
+    </ul>
+    <label for="team">Nombre de tu equipo</label>
+    <input id="team" type="text" maxlength="40" placeholder="Por ejemplo: Los Capitalizadores" autocomplete="off">
+    <button class="btn" id="startBtn" type="button">Comenzar auditoría</button>
+  </section>
+
+  <section id="quiz" class="panel" hidden>
+    <div class="progress" id="progress" aria-hidden="true"></div>
+    <p class="asiento" id="asiento"></p>
+    <h2 id="qtext"></h2>
+    <div id="options" role="group" aria-labelledby="qtext"></div>
+    <div id="feedback" hidden aria-live="polite">
+      <p id="verdict"></p>
+      <p id="why"></p>
+      <button class="btn" id="nextBtn" type="button">Siguiente pregunta</button>
+    </div>
+  </section>
+
+  <section id="result" class="panel" hidden>
+    <p class="dictamen-tag" id="teamLine"></p>
+    <p class="dictamen-tag">Dictamen de la auditoría</p>
+    <h2 id="dictamen"></h2>
+    <p class="lead" id="dictamenText"></p>
+    <p class="score"><b id="scoreNum"></b> de 5 correctas · <span id="points"></span></p>
+    <ul id="review"></ul>
+    <button class="btn" id="retryBtn" type="button">Intentar de nuevo</button>
+  </section>
+
+  <p class="foot">Basado en: Tratamiento contable de las Propiedades, Planta y Equipo según la NIC 16.</p>
+</main>
+
+<script>
+(function () {
+  var QUESTIONS = [
+    {
+      q: "Una maquinaria adquirida para fabricar productos se clasifica como:",
+      opts: ["Inventario", "Propiedad, planta y equipo", "Gasto del período", "Activo biológico"],
+      correct: 1,
+      why: "Es un activo tangible que se usa para producir bienes y se espera usar más de un período. Cumple la definición de PPE del párrafo 6."
+    },
+    {
+      q: "La mercadería destinada a la venta se trata según:",
+      opts: ["NIC 16", "NIC 2", "NIIF 5", "NIC 36"],
+      correct: 1,
+      why: "La mercadería para la venta es inventario y se regula por la NIC 2. La NIC 16 no aplica."
+    },
+    {
+      q: "Las dos condiciones para reconocer un elemento de PPE (párrafo 7) son:",
+      opts: [
+        "Beneficios económicos futuros probables y costo medible con fiabilidad",
+        "Costo alto y vida útil mayor a 10 años",
+        "Propiedad legal y pago al contado",
+        "Uso administrativo y garantía vigente"
+      ],
+      correct: 0,
+      why: "El párrafo 7 pide que sea probable obtener beneficios económicos futuros y que el costo se pueda medir con fiabilidad, con facturas o contratos."
+    },
+    {
+      q: "¿Cuál de estos desembolsos NO forma parte del costo del activo?",
+      opts: ["Transporte", "Instalación", "Capacitación del personal", "Pruebas de funcionamiento"],
+      correct: 2,
+      why: "Capacitar al personal no aumenta el valor del activo. Según el párrafo 19, se registra como gasto del período."
+    },
+    {
+      q: "El importe depreciable de un activo es:",
+      opts: ["El costo del activo", "El costo menos el valor residual", "El valor razonable", "El importe recuperable"],
+      correct: 1,
+      why: "El importe depreciable es el costo menos el valor residual. Ese monto se distribuye de forma sistemática a lo largo de la vida útil."
+    }
+  ];
+  var LETTERS = ["A", "B", "C", "D"];
+  var idx = 0;
+  var answers = [];
+  var team = "";
+
+  function $(id) { return document.getElementById(id); }
+  function show(name) {
+    ["start", "quiz", "result"].forEach(function (s) { $(s).hidden = (s !== name); });
+    window.scrollTo(0, 0);
+  }
+
+  function renderProgress() {
+    var box = $("progress");
+    box.textContent = "";
+    for (var i = 0; i < QUESTIONS.length; i++) {
+      var s = document.createElement("span");
+      if (i < idx) s.className = "done";
+      else if (i === idx) s.className = "current";
+      box.appendChild(s);
+    }
+  }
+
+  function renderQuestion() {
+    var item = QUESTIONS[idx];
+    renderProgress();
+    $("asiento").textContent = "Asiento " + (idx + 1) + " de " + QUESTIONS.length;
+    $("qtext").textContent = item.q;
+    $("feedback").hidden = true;
+    var box = $("options");
+    box.textContent = "";
+    item.opts.forEach(function (text, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "opt";
+      b.dataset.i = String(i);
+      var chip = document.createElement("span");
+      chip.className = "chip";
+      chip.textContent = LETTERS[i];
+      var txt = document.createElement("span");
+      txt.className = "txt";
+      txt.textContent = text;
+      b.appendChild(chip);
+      b.appendChild(txt);
+      b.addEventListener("click", function () { choose(i); });
+      box.appendChild(b);
+    });
+  }
+
+  function choose(i) {
+    var item = QUESTIONS[idx];
+    answers[idx] = i;
+    var buttons = $("options").querySelectorAll(".opt");
+    buttons.forEach(function (b, n) {
+      b.disabled = true;
+      if (n === item.correct) b.classList.add("correct");
+      else if (n === i) b.classList.add("wrong");
+    });
+    var ok = (i === item.correct);
+    var v = $("verdict");
+    v.textContent = ok ? "Correcto, +1 punto" : "No es esa. La respuesta es la " + LETTERS[item.correct];
+    v.className = ok ? "good" : "bad";
+    $("why").textContent = item.why;
+    $("nextBtn").textContent = (idx === QUESTIONS.length - 1) ? "Ver el dictamen" : "Siguiente pregunta";
+    $("feedback").hidden = false;
+    $("nextBtn").focus();
+  }
+
+  function score() {
+    var n = 0;
+    answers.forEach(function (a, i) { if (a === QUESTIONS[i].correct) n++; });
+    return n;
+  }
+
+  function finish() {
+    var n = score();
+    var title, text;
+    if (n === 5) {
+      title = "Opinión sin salvedades";
+      text = "Tus estados financieros pasan la auditoría. Dominas el ciclo del activo, desde el reconocimiento hasta la baja.";
+    } else if (n >= 3) {
+      title = "Opinión con salvedades";
+      text = "Vas bien, pero hay puntos que corregir. Revisa abajo las preguntas falladas antes de la siguiente ronda.";
+    } else {
+      title = "Opinión adversa";
+      text = "Todavía hay errores importantes. Vuelve a leer el artículo y revisa la explicación de cada pregunta.";
+    }
+    $("teamLine").textContent = team ? "Equipo: " + team : "";
+    $("teamLine").hidden = !team;
+    $("dictamen").textContent = title;
+    $("dictamenText").textContent = text;
+    $("scoreNum").textContent = String(n);
+    $("points").textContent = n + (n === 1 ? " punto" : " puntos") + " para tu equipo";
+    var list = $("review");
+    list.textContent = "";
+    QUESTIONS.forEach(function (item, i) {
+      var li = document.createElement("li");
+      var ok = answers[i] === item.correct;
+      var tag = document.createElement("span");
+      tag.className = "tag " + (ok ? "ok" : "no");
+      tag.textContent = (i + 1) + (ok ? " Correcta" : " Incorrecta");
+      li.appendChild(tag);
+      var rest = document.createElement("span");
+      rest.textContent = ok
+        ? LETTERS[item.correct] + ". " + item.opts[item.correct]
+        : "Elegiste " + LETTERS[answers[i]] + ". Lo correcto era " + LETTERS[item.correct] + ". " + item.opts[item.correct];
+      li.appendChild(rest);
+      list.appendChild(li);
+    });
+    show("result");
+  }
+
+  $("startBtn").addEventListener("click", function () {
+    team = $("team").value.trim();
+    idx = 0;
+    answers = [];
+    show("quiz");
+    renderQuestion();
+  });
+  $("nextBtn").addEventListener("click", function () {
+    if (idx < QUESTIONS.length - 1) {
+      idx++;
+      renderQuestion();
+      window.scrollTo(0, 0);
+    } else {
+      finish();
+    }
+  });
+  $("retryBtn").addEventListener("click", function () {
+    idx = 0;
+    answers = [];
+    show("quiz");
+    renderQuestion();
+  });
+  $("team").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") $("startBtn").click();
+  });
+})();
+</script>
+
+</html>
